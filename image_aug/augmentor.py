@@ -1,43 +1,51 @@
+import os
+import imgaug as ia
+from imgaug import augmenters as iaa
+import scipy
+import cv2
 import numpy as np
-import skimage.io as io
-from skimage.exposure import adjust_gamma
-from skimage.transform import rotate, AffineTransform, warp
-from skimage.util import random_noise
-from skimage.filters import gaussian
-from matplotlib import pyplot as plt
+import imageio
+# optional check my hint import scipy.misc import imwrite
+# optional check my hint import scipy.misc import imsave
 
-def augment():
-    print('running...')
-    image = io.imread('images/original.jpg')
+ia.seed(1)
 
-    flip(image)
-    noise(image)
-    blur(image)
-    darken(image)
-    lighten(image)
+img = imageio.imread("original.jpg") #read you image
 
-    print('success')
+images = np.array(
+    [img for _ in range(32)], dtype=np.uint8)
+  # 32 means creat 32 enhanced images using following methods.
 
-def flip(image):
-    flip = np.fliplr(image)
-    plt.imsave('images/flipped.jpg',flip);
+seq = iaa.Sequential([
+    iaa.Fliplr(0.5), # horizontal flips
+    iaa.Crop(percent=(0, 0.1)), # random crops
+    # Small gaussian blur with random sigma between 0 and 0.5.
+    # But we only blur about 50% of all images.
+    iaa.Sometimes(0.5,
+        iaa.GaussianBlur(sigma=(0, 0.5))
+    ),
+    # Strengthen or weaken the contrast in each image.
+    iaa.contrast.LinearContrast((0.75, 1.5)),
+    # Add gaussian noise.
+    # For 50% of all images, we sample the noise once per pixel.
+    # For the other 50% of all images, we sample the noise per pixel AND
+    # channel. This can change the color (not only brightness) of the
+    # pixels.
+    iaa.AdditiveGaussianNoise(loc=0, scale=(0.0, 0.05*255), per_channel=0.5),
+    # Make some images brighter and some darker.
+    # In 20% of all cases, we sample the multiplier once per channel,
+    # which can end up changing the color of the images.
+    iaa.Multiply((0.8, 1.2), per_channel=0.2),
+    # Apply affine transformations to each image.
+    # Scale/zoom them, translate/move them, rotate them and shear them.
+    iaa.Affine(
+        scale={"x": (0.8, 1.2), "y": (0.8, 1.2)},
+        translate_percent={"x": (-0.2, 0.2), "y": (-0.2, 0.2)},
+        rotate=(-25, 25),
+        shear=(-8, 8)
+    )
+], random_order=True) # apply augmenters in random order
+images_aug = seq.augment_images(images)
 
-def noise(image):
-    sigma = 0.155
-    noise = random_noise(image, var=sigma**2)
-    plt.imsave('images/noise.jpg',noise);
-
-def blur(image):
-    blur = gaussian(image, sigma=3, multichannel=True)
-    plt.imsave('images/blurred.jpg',blur)
-
-def darken(image):
-    darken = adjust_gamma(image, gamma=3, gain=1)
-    plt.imsave('images/darkened.jpg', darken)
-
-def lighten(image):
-    lighten = adjust_gamma(image, gamma=1/4, gain=1)
-    plt.imsave('images/lightened.jpg', lighten)
-
-if __name__ == "__main__":
-    augment()
+for i in range(32):
+    imageio.imwrite(str(i)+'new.jpg', images_aug[i])  #write all changed images
