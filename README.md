@@ -5,17 +5,25 @@ Senior capstone project for Kneron Collaborative :-)
 ### 1. Install/upgrade pip
 
 Windows:
-<code>py -m pip install --upgrade pip</code>
+````bash
+py -m pip install --upgrade pip
+````
 
 Mac:
-<code>python3 -m pip install --user --upgrade pip</code>
+````bash
+python3 -m pip install --user --upgrade pip
+````
 
 ### 2. Install virtual environment
 Windows:
-<code>py -m pip install --user virtualenv</code>
+````bash
+py -m pip install --user virtualenv
+````
 
 Mac:
-<code>python3 -m pip install --user virtualenv</code>
+````bash
+python3 -m pip install --user virtualenv
+````
 
 ### 3. Create & activate virtual environment
 Go to your working directory, then:
@@ -33,7 +41,18 @@ source env/bin/activate
 ````
 
 ### 4. Install required packages
-<code>python3 -m pip install -r requirements.txt</code>
+
+````bash
+python3 -m pip install -r requirements.txt
+````
 
 ### 5. Run program
-<code>python3 main.py</code>
+````bash
+python3 main.py
+````
+
+### 6. Deactivate virtual environment when done
+````bash
+deactivate
+````
+
