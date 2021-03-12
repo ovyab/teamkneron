@@ -46,7 +46,7 @@ def split_frames(path):
     os.mkdir('frames')
     count = 0
     with open('results.csv', mode='w') as file:
-        fieldnames = ['img', 'c0', 'c1', 'c2', 'c3', 'c4', 'c5', 'c6', 'c7', 'c8']
+        fieldnames = ['img', 'c0', 'c1', 'c2', 'c3', 'c4', 'c5', 'c6', 'c7', 'c8', 'c9']
         writer = csv.DictWriter(file, fieldnames=fieldnames)
         writer.writeheader()
         while vid.isOpened():
@@ -54,15 +54,16 @@ def split_frames(path):
             cv2.imwrite("%s/frame%d.jpg" % ('frames', count), frame)
             # print("%s/frames/frame%d.jpg" % (os.getcwd(), count));
             writer.writerow({'img': 'frame%d.jpg' % (count),
-                            'c0':0,
-                            'c1':0,
-                            'c2':1,
-                            'c3':0,
-                            'c4':0,
-                            'c5':0,
-                            'c6':0,
-                            'c7':0,
-                            'c8':0})
+                            'c0':.1,
+                            'c1':.1,
+                            'c2':.98,
+                            'c3':.3,
+                            'c4':.1,
+                            'c5':.7,
+                            'c6':.14,
+                            'c7':.1,
+                            'c8':.02,
+                            'c9':.18})
             count += 1
 
             if (count > (length-1)):
@@ -84,9 +85,11 @@ def generate_results():
 
             # get classifications for img text
             text = ""
+            maxNum = 0.0
             for col in row:
-                if row[col] == '1':
-                    text += ("%s " % (str(col)))
+                if (col !='img' and float(row[col]) > maxNum):
+                    maxNum = float(row[col])
+                    text = col
 
             # put classifications on image + save
             img_editable = ImageDraw.Draw(img)
